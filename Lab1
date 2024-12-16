@@ -1,0 +1,84 @@
+using System;
+using System.IO;
+
+namespace ChessBoardPlacement
+{
+    public class RookPlacement
+    {
+        public static void Main(string[] args)
+        {
+            // Путь к файлам
+            string inputFile = args.Length > 0 ? args[0] : Path.Combine("ChessBoardPlacement", "INPUT.TXT");
+            string outputFile = Path.Combine("ChessBoardPlacement", "OUTPUT.TXT");
+
+            // Проверяем существование входного файла
+            if (!File.Exists(inputFile))
+            {
+                Console.WriteLine($"Ошибка: файл \"{inputFile}\" не найден.");
+                return;
+            }
+
+            // Считываем входные данные
+            string[] fileData = File.ReadAllLines(inputFile);
+            if (fileData.Length == 0)
+            {
+                Console.WriteLine("Ошибка: входной файл пуст.");
+                return;
+            }
+
+            string[] parameters = fileData[0].Split();
+            if (parameters.Length < 2 ||
+                !int.TryParse(parameters[0], out int boardSize) ||
+                !int.TryParse(parameters[1], out int rookCount))
+            {
+                Console.WriteLine("Ошибка: некорректные входные данные.");
+                return;
+            }
+
+            // Рассчитываем количество способов размещения ладей
+            long placementWays = CalculatePlacementWays(boardSize, rookCount);
+
+            // Записываем результат в выходной файл
+            File.WriteAllText(outputFile, placementWays.ToString());
+
+            // Выводим результат в консоль
+            Console.WriteLine("----------- Chess Rook Placement -----------");
+            Console.WriteLine($"Количество способов размещения ладей: {placementWays}");
+        }
+
+        // Метод для расчета количества способов размещения ладей
+        private static long CalculatePlacementWays(int boardSize, int rookCount)
+        {
+            if (rookCount > boardSize) return 0; // Нельзя разместить больше ладей, чем размер доски
+
+            return CalculateBinomialCoefficient(boardSize, rookCount) * CalculateFactorial(rookCount);
+        }
+
+        // Вычисление биномиального коэффициента C(n, k)
+        private static long CalculateBinomialCoefficient(int n, int k)
+        {
+            if (k > n) return 0;
+            if (k == 0 || k == n) return 1;
+
+            long result = 1;
+            for (int i = 1; i <= k; i++)
+            {
+                result = result * (n - i + 1) / i;
+            }
+
+            return result;
+        }
+
+        // Вычисление факториала n!
+        private static long CalculateFactorial(int n)
+        {
+            long factorial = 1;
+            for (int i = 2; i <= n; i++)
+            {
+                factorial *= i;
+            }
+
+            return factorial;
+        }
+    }
+}
